@@ -1,19 +1,28 @@
 GET_REPOS_QUERY = """
-query($cursor: String) {
-  search(query: "stars:>1", type: REPOSITORY, first: 50, after: $cursor) {
+query($query: String!, $first: Int!, $after: String) {
+  search(query: $query, type: REPOSITORY, first: $first, after: $after) {
+    repositoryCount
     pageInfo {
       endCursor
       hasNextPage
     }
-    edges {
-      node {
-        ... on Repository {
-          id
-          nameWithOwner
-          stargazerCount
+    nodes {
+      __typename
+      ... on Repository {
+        databaseId
+        name
+        owner {
+          login
         }
+        stargazerCount
+        url
       }
     }
+  }
+  rateLimit {
+    remaining
+    resetAt
+    cost
   }
 }
 """

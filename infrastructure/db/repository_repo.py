@@ -1,4 +1,4 @@
-from postgres import get_connection
+from database import get_connection
 
 class RepositoryRepository:
 

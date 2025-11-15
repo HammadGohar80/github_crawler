@@ -2,7 +2,8 @@ name: GitHub Crawler
 
 on:
   workflow_dispatch:
-  push:
+  schedule:
+    - cron: '0 0 * * *'
 
 jobs:
   crawl:
@@ -10,18 +11,20 @@ jobs:
 
     services:
       postgres:
-        image: postgres:14
+        image: postgres:15
         env:
           POSTGRES_PASSWORD: postgres
           POSTGRES_USER: postgres
           POSTGRES_DB: github
-        ports:
-          - 5432:5432
         options: >-
           --health-cmd="pg_isready -U postgres"
           --health-interval=5s
           --health-timeout=5s
           --health-retries=5
+
+    env:
+      POSTGRES_URL: postgresql://postgres:postgres@localhost:5432/github
+      GITHUB_ACCESS_TOKEN: ${{ secrets.GITHUB_ACCESS_TOKEN }}
 
     steps:
       - name: Checkout repo
@@ -36,18 +39,16 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Setup DB schema
-        run: psql postgresql://postgres:postgres@localhost:5432/github -f infrastructure/db/migrations.sql
+        run: python scripts/setup_db.py
 
       - name: Crawl stars
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: python src/app/main.py
 
       - name: Export database
-        run: psql -d postgresql://postgres:postgres@localhost:5432/github -c "COPY repositories TO STDOUT WITH CSV HEADER" > repos.csv
+        run: python scripts/export_data.py
 
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
           name: repo-stars
-          path: repos.csv
+          path: output/*.csv
