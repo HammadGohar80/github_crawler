@@ -28,7 +28,7 @@ jobs:
     env:
       # Use localhost because this job runs directly on the runner
       DATABASE_URL: postgresql://postgres:postgres@localhost:5432/github
-      GITHUB_ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+      GITHUB_ACCESS_TOKEN: ${{ secrets.GITHUB_ACCESS_TOKEN }}
 
     steps:
       - name: Checkout repository
@@ -51,49 +51,6 @@ jobs:
 
       - name: Setup DB schema
         run: python -m scripts.setup_db
-
-      - name: Fetch 100 repositories via Python
-        run: |
-          python - << 'EOF'
-          import os
-          import requests
-      
-          token = os.environ['GITHUB_ACCESS_TOKEN']
-          url = "https://api.github.com/graphql"
-      
-          query = """
-          query($query: String!, $first: Int!, $after: String) {
-            search(query: $query, type: REPOSITORY, first: $first, after: $after) {
-              repositoryCount
-              pageInfo {
-                endCursor
-                hasNextPage
-              }
-              nodes {
-                __typename
-                ... on Repository {
-                  databaseId
-                  name
-                  owner { login }
-                  stargazerCount
-                  url
-                }
-              }
-            }
-            rateLimit { remaining resetAt cost }
-          }
-          """
-      
-          variables = {
-              "query": "stars:>0",
-              "first": 100,
-              "after": None
-          }
-      
-          resp = requests.post(url, json={"query": query, "variables": variables}, headers={"Authorization": f"bearer {token}"})
-          data = resp.json()
-          print(data)
-          EOF
 
       - name: Crawl stars
         run: python -m src.app.main
