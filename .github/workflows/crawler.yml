@@ -55,42 +55,45 @@ jobs:
       - name: Fetch 100 repositories via Python
         run: |
           python - << 'EOF'
-          import os, requests
+          import os
+          import requests
       
           token = os.environ['GITHUB_ACCESS_TOKEN']
-          url = 'https://api.github.com/graphql'
+          url = "https://api.github.com/graphql"
       
           query = """
-          {
-            search(query: "stars:>0", type: REPOSITORY, first: 100) {
+          query($query: String!, $first: Int!, $after: String) {
+            search(query: $query, type: REPOSITORY, first: $first, after: $after) {
+              repositoryCount
+              pageInfo {
+                endCursor
+                hasNextPage
+              }
               nodes {
-                name
-                owner { login }
-                stargazerCount
-                url
+                __typename
+                ... on Repository {
+                  databaseId
+                  name
+                  owner { login }
+                  stargazerCount
+                  url
+                }
               }
             }
+            rateLimit { remaining resetAt cost }
           }
           """
       
-          headers = {"Authorization": f"bearer {token}"}
-          resp = requests.post(url, json={'query': query}, headers=headers)
-          print(resp.json())
+          variables = {
+              "query": "stars:>0",
+              "first": 100,
+              "after": None
+          }
+      
+          resp = requests.post(url, json={"query": query, "variables": variables}, headers={"Authorization": f"bearer {token}"})
+          data = resp.json()
+          print(data)
           EOF
-
-      - name: Verify GitHub token
-        run: |
-          run: |
-          if [ -z "$GITHUB_ACCESS_TOKEN" ]; then
-            echo "❌ GITHUB_ACCESS_TOKEN is NOT set!"
-            exit 1
-          else
-            echo "✅ GITHUB_ACCESS_TOKEN is set."
-            # Optional: test token validity without exposing it
-            curl -s -o /dev/null -w "%{http_code}\n" \
-              -H "Authorization: token $GITHUB_ACCESS_TOKEN" \
-              https://api.github.com/user
-          fi
 
       - name: Crawl stars
         run: python -m src.app.main
