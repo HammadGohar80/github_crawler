@@ -52,6 +52,18 @@ jobs:
       - name: Setup DB schema
         run: python -m scripts.setup_db
 
+      - name: Verify GitHub token
+        run: |
+          if [ -z "$GITHUB_ACCESS_TOKEN" ]; then
+            echo "❌ GITHUB_ACCESS_TOKEN is NOT set!"
+            exit 1
+          else
+            echo "✅ GITHUB_ACCESS_TOKEN is set."
+            # Optional: test token validity without exposing it
+            curl -s -o /dev/null -w "%{http_code}\n" \
+              -H "Authorization: token $GITHUB_ACCESS_TOKEN" \
+              https://api.github.com/user
+
       - name: Crawl stars
         run: python -m src.app.main
 
