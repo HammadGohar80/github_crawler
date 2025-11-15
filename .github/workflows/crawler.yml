@@ -52,6 +52,32 @@ jobs:
       - name: Setup DB schema
         run: python -m scripts.setup_db
 
+      - name: Fetch 100 repositories via Python
+        run: |
+          python - << 'EOF'
+          import os, requests
+      
+          token = os.environ['GITHUB_ACCESS_TOKEN']
+          url = 'https://api.github.com/graphql'
+      
+          query = """
+          {
+            search(query: "stars:>0", type: REPOSITORY, first: 100) {
+              nodes {
+                name
+                owner { login }
+                stargazerCount
+                url
+              }
+            }
+          }
+          """
+      
+          headers = {"Authorization": f"bearer {token}"}
+          resp = requests.post(url, json={'query': query}, headers=headers)
+          print(resp.json())
+          EOF
+
       - name: Verify GitHub token
         run: |
           run: |
