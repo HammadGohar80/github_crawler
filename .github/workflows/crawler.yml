@@ -54,6 +54,7 @@ jobs:
 
       - name: Verify GitHub token
         run: |
+          run: |
           if [ -z "$GITHUB_ACCESS_TOKEN" ]; then
             echo "❌ GITHUB_ACCESS_TOKEN is NOT set!"
             exit 1
@@ -63,6 +64,7 @@ jobs:
             curl -s -o /dev/null -w "%{http_code}\n" \
               -H "Authorization: token $GITHUB_ACCESS_TOKEN" \
               https://api.github.com/user
+          fi
 
       - name: Crawl stars
         run: python -m src.app.main
