@@ -1,0 +1,47 @@
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual Environment
+venv/
+.env
+.env.*
+
+# IDE / Editor
+.idea/
+.vscode/
+
+# Byte-compiled
+*.egg-info/
+*.eggs/
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Artifacts & Local Data
+*.csv
+*.json
+*.sqlite3
+output/
+exports/
+
+# PyInstaller
+*.spec
+dist/
+build/
+
+# Test cache
+pytest_cache/
+
+# GitHub actions artifacts
+*.zip
+
+# Temporary files
+*.tmp
+*.temp

@@ -1,0 +1,14 @@
+CREATE TABLE IF NOT EXISTS repositories (
+    id SERIAL PRIMARY KEY,
+    repo_id BIGINT UNIQUE NOT NULL,
+    full_name TEXT NOT NULL,
+    stars INTEGER NOT NULL,
+    last_crawled TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS stars_history (
+    id SERIAL PRIMARY KEY,
+    repo_id BIGINT NOT NULL,
+    stars INTEGER NOT NULL,
+    crawled_at TIMESTAMP NOT NULL DEFAULT NOW()
+);
