@@ -1,6 +1,5 @@
 name: GitHub Crawler
 
-# Trigger manually or on a schedule (every day at midnight)
 on:
   workflow_dispatch:
   schedule:
@@ -23,12 +22,11 @@ jobs:
           --health-timeout=5s
           --health-retries=5
         ports:
-          - 5432:5432  # Map container port to host
+          - 5432:5432
 
     env:
-      # Use localhost because this job runs directly on the runner
       DATABASE_URL: postgresql://postgres:postgres@localhost:5432/github
-      GITHUB_ACCESS_TOKEN: ${{ secrets.GITHUB_ACCESS_TOKEN }}
+      GITHUB_ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
 
     steps:
       - name: Checkout repository
