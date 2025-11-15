@@ -23,7 +23,7 @@ jobs:
           --health-retries=5
 
     env:
-      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/github
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/github
       GITHUB_ACCESS_TOKEN: ${{ secrets.GITHUB_ACCESS_TOKEN }}
 
     steps:
