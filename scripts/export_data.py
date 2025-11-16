@@ -24,7 +24,10 @@ def export_table(table_name: str):
     with open(output_file, "w", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
         writer.writerow(column_names)
-        writer.writerows(rows)
+
+        # Convert each RealDictRow to list in correct column order
+        for row in rows:
+            writer.writerow([row[col] for col in column_names])
 
     cursor.close()
     conn.close()
